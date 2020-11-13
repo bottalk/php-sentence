@@ -201,9 +201,11 @@ class Sentence
 
         $last_word = Multibyte::trim($words[$word_count - 1]);
         $last_is_capital = preg_match('#^\p{Lu}#u', $last_word);
+        $last_is_digit = preg_match('#^[\d]+#u', $last_word);
+        
         $last_is_abbreviation = mb_substr(Multibyte::trim($fragment), -1) === '.';
 
-        return $last_is_capital > 0
+        return (($last_is_capital > 0) || ($last_is_digit > 0))
             && $last_is_abbreviation > 0
             && mb_strlen($last_word) <= 3;
     }

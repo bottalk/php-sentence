@@ -201,11 +201,13 @@ class Sentence
 
         $last_word = Multibyte::trim($words[$word_count - 1]);
         $last_is_capital = preg_match('#^\p{Lu}#u', $last_word);
+        $last_is_digit = preg_match('#^[\d]+#u', $last_word);
+        
         $last_is_abbreviation = mb_substr(Multibyte::trim($fragment), -1) === '.';
 
-        return $last_is_capital > 0
+        return (($last_is_capital > 0) || ($last_is_digit > 0))
             && $last_is_abbreviation > 0
-            && mb_strlen($last_word) <= 3;
+            && mb_strlen($last_word) <= 5;
     }
 
     /**
@@ -277,6 +279,39 @@ class Sentence
     }
 
     /**
+     * Merges any part starting with a closing parenthesis ')' to the previous
+     * part.
+     *
+     * @param string[] $parts
+     * @return string[]
+     */
+    private function openTagsMerge($parts)
+    {
+        $subsentences = [];
+        $mergeUntilClosingTag = false;
+
+        foreach ($parts as $part) {
+           
+            if ($mergeUntilClosingTag) {
+                $subsentences[count($subsentences) - 1] .= $part;
+            } else {
+                $subsentences[] = $part;
+            }
+
+            if (false!==strpos($part,'<') && (false === strpos($part,'/>')) && (false === strpos($part,'</'))) {
+                $mergeUntilClosingTag = true;
+            }
+
+            if ($mergeUntilClosingTag && ((false !== strpos($part,'/>')) || (false !== strpos($part,'</')))) {
+                $mergeUntilClosingTag = false;
+            }
+
+        }
+
+        return $subsentences;
+    }
+
+    /**
      * Merges items into larger sentences.
      * Multibyte.php safe
      *
@@ -335,6 +370,7 @@ class Sentence
             'abbreviationMerge',
             'closeQuotesMerge',
             'sentenceMerge',
+            'openTagsMerge'
         ];
 
         // clean funny quotes

@@ -195,6 +195,7 @@ class Sentence
      */
     private static function isAbreviation($fragment)
     {
+
         $words = mb_split('\s+', Multibyte::trim($fragment));
 
         $word_count = count($words);
@@ -222,6 +223,7 @@ class Sentence
         $subsentences = [];
 
         foreach ($parts as $part) {
+
             if ($part[0] === ')') {
                 $subsentences[count($subsentences) - 1] .= $part;
             } else {
@@ -246,6 +248,7 @@ class Sentence
         $previous_statement = '';
         $return = [];
         foreach ($statements as $statement) {
+
             if (self::isEndQuote($statement)) {
                 $statement = $previous_statement . $statement;
             } else {
@@ -287,6 +290,7 @@ class Sentence
      */
     private function openTagsMerge($parts)
     {
+
         $subsentences = [];
         $mergeUntilClosingTag = false;
 
@@ -311,6 +315,23 @@ class Sentence
         return $subsentences;
     }
 
+    public function urlsMerge($parts) {
+        $subsentences = [];
+        $mergeUntilClosingTag = false;
+
+        foreach ($parts as $part) {
+
+            if (count($subsentences) && (preg_match('#[^\s]+\.[^\s]+\.$#u',$subsentences[count($subsentences) - 1]))) {
+                $subsentences[count($subsentences) - 1] .= $part;
+            } else {
+                $subsentences[] = $part;
+            }
+
+        }
+
+        return $subsentences;
+    }
+
     /**
      * Merges items into larger sentences.
      * Multibyte.php safe
@@ -328,6 +349,10 @@ class Sentence
         $has_words = false;
         $previous_word_ending = null;
         foreach ($shorts as $short) {
+
+
+
+
             $word_count = count(mb_split('\s+', Multibyte::trim($short)));
             $after_non_abbreviating_terminal = in_array($previous_word_ending, $non_abbreviating_terminals);
 
@@ -370,7 +395,8 @@ class Sentence
             'abbreviationMerge',
             'closeQuotesMerge',
             'sentenceMerge',
-            'openTagsMerge'
+            'openTagsMerge',
+            'urlsMerge'
         ];
 
         // clean funny quotes

@@ -326,8 +326,9 @@ class Sentence
             } else {
                 if (count($subsentences) && (mb_substr($part,0,2)==='de')) {
                     $subsentences[count($subsentences)-1].= $part;
+                } else {
+                    $subsentences[] = $part;
                 }
-                $subsentences[] = $part;
             }
 
         }

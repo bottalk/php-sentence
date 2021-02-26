@@ -324,6 +324,9 @@ class Sentence
             if (count($subsentences) && (preg_match('#[^\s]+\.[^\s]+\.$#u',$subsentences[count($subsentences) - 1]))) {
                 $subsentences[count($subsentences) - 1] .= $part;
             } else {
+                if (count($subsentences) && (mb_substr($part,0,2)==='de')) {
+                    $subsentences[count($subsentences)-1].= $part;
+                }
                 $subsentences[] = $part;
             }
 
